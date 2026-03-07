@@ -42,7 +42,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/auth?tab=signup" className="w-full sm:w-auto">
               <Button className="w-full sm:w-auto text-lg px-8 py-6 rounded-2xl">
-                Join NX-CONNECT Free <ArrowRight className="w-5 h-5 ml-2" />
+                JOIN NX-CONNECT <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
             <Button variant="outline" className="w-full sm:w-auto text-lg px-8 py-6 rounded-2xl bg-background/50" onClick={installPWA}>
@@ -129,7 +129,7 @@ export default function LandingPage() {
       <footer className="py-12 border-t border-border/50 text-center text-muted-foreground">
         <div className="flex items-center justify-center gap-2 mb-6">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-display font-bold text-sm">NX</div>
-          <span className="font-display font-bold text-xl text-foreground">NUTTERX</span>
+          <span className="font-display font-bold text-xl text-foreground">NX-CONNECT</span>
         </div>
         <p>© 2024 NutterX Technologies ⚡. All rights reserved.</p>
         <div className="mt-4 flex justify-center gap-4 text-sm">
