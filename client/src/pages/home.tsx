@@ -14,7 +14,7 @@ export default function HomeFeed() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-20">
       <CreatePostBox />
-      {posts?.length === 0 ? (
+      {!posts || posts.length === 0 ? (
         <Card className="text-center py-16">
           <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
             <MessageCircle className="w-8 h-8 text-muted-foreground" />
@@ -23,7 +23,11 @@ export default function HomeFeed() {
           <p className="text-muted-foreground">Be the first to share something with your friends!</p>
         </Card>
       ) : (
-        posts?.map(post => <PostItem key={post.id} post={post} currentUserId={user?.id} />)
+        posts
+  ?.filter(post => post?.id)
+  .map(post => (
+    <PostItem key={post.id} post={post} currentUserId={user?.id} />
+  ))
       )}
     </div>
   );
@@ -63,7 +67,7 @@ function CreatePostBox() {
 function PostItem({ post, currentUserId }: { post: Post; currentUserId?: string }) {
   const [showComments, setShowComments] = useState(false);
   const likePost = useLikePost();
-  const hasLiked = post.likes.includes(currentUserId || "");
+  const hasLiked = (post.likes || []).includes(currentUserId || "");
 
   return (
     <Card className="transition-all hover:shadow-xl hover:border-border">
