@@ -41,8 +41,9 @@ export default function AuthPage() {
         setTab("login");
       }
     } catch (err: any) {
-      setError(err.message || "An error occurred");
-    }
+  console.error(err);
+  setError(err?.message || "Network error. Please try again.");
+}
   };
 
   return (
@@ -93,7 +94,7 @@ export default function AuthPage() {
               <Input name="desiredPassword" type="password" placeholder="New Desired Password" value={formData.desiredPassword} onChange={handleChange} required minLength={6} />
             )}
 
-            <Button type="submit" className="w-full mt-6 py-4" disabled={isLoggingIn || isSigningUp}>
+            <Button type="submit" className="w-full mt-6 py-4" disabled={tab === "login" ? isLoggingIn : tab === "signup" ? isSigningUp : false}>
               {tab === "login" ? "Sign In" : tab === "signup" ? "Create Account" : "Submit Request"}
             </Button>
           </form>
