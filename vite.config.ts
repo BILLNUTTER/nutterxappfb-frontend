@@ -40,7 +40,7 @@ export default defineConfig(async () => {
       proxy: {
         // Forward API requests from frontend to backend
         "/api": {
-          target: "http://localhost:5000",
+          target: "https://nutterxapp-7099750cbf5f.herokuapp.com",
           changeOrigin: true,
           secure: false,
         },
