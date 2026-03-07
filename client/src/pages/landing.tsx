@@ -15,7 +15,7 @@ export default function LandingPage() {
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-display font-bold text-2xl shadow-lg shadow-primary/30">
               NX
             </div>
-            <span className="font-display font-bold text-2xl tracking-tighter hidden sm:block">NUTTERX</span>
+            <span className="font-display font-bold text-2xl tracking-tighter hidden sm:block">NX-CONNECT</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/auth">
@@ -42,7 +42,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/auth?tab=signup" className="w-full sm:w-auto">
               <Button className="w-full sm:w-auto text-lg px-8 py-6 rounded-2xl">
-                Join NutterX Free <ArrowRight className="w-5 h-5 ml-2" />
+                Join NX-CONNECT Free <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
             <Button variant="outline" className="w-full sm:w-auto text-lg px-8 py-6 rounded-2xl bg-background/50" onClick={installPWA}>
@@ -72,7 +72,7 @@ export default function LandingPage() {
       {/* Features */}
       <section className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-display font-bold mb-4">Why Choose NutterX?</h2>
+          <h2 className="text-4xl font-display font-bold mb-4">Why Choose NX-CONNECT?</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">We've stripped away the noise to give you a platform focused on what matters: real connections.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
@@ -103,7 +103,7 @@ export default function LandingPage() {
       {/* Manual / How it works */}
       <section className="py-24 px-6 bg-secondary/20">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-display font-bold text-center mb-16">How NutterX Works</h2>
+          <h2 className="text-4xl font-display font-bold text-center mb-16">How NX-CONNECT Works</h2>
           <div className="space-y-12">
             {[
               { step: 1, title: "Create Your Identity", desc: "Sign up with your details. Choose a unique username and upload a profile picture. Only your name, username, and photo are public." },
@@ -131,11 +131,10 @@ export default function LandingPage() {
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-display font-bold text-sm">NX</div>
           <span className="font-display font-bold text-xl text-foreground">NUTTERX</span>
         </div>
-        <p>© 2024 NutterX Social. All rights reserved.</p>
+        <p>© 2024 NutterX Technologies ⚡. All rights reserved.</p>
         <div className="mt-4 flex justify-center gap-4 text-sm">
           <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
           <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-          <Link href="/?admin=true" className="hover:text-primary transition-colors">Admin Portal</Link>
         </div>
       </footer>
     </div>
