@@ -15,16 +15,25 @@ export function usePosts() {
 
 export function useCreatePost() {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (content: string) => {
-      const data = await apiFetch(api.posts.create.path, {
+    mutationFn: async (data: { content: string }) => {
+      const res = await apiFetch(api.posts.create.path, {
         method: "POST",
-        body: JSON.stringify({ content }),
+        body: JSON.stringify(data),
       });
-      return parseWithLogging(api.posts.create.responses[201], data, "posts.create");
+
+      return parseWithLogging(
+        api.posts.create.responses[201],
+        res,
+        "posts.create"
+      );
     },
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.posts.list.path] });
+      queryClient.invalidateQueries({
+        queryKey: [api.posts.list.path],
+      });
     },
   });
 }
