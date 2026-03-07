@@ -36,7 +36,7 @@ function CreatePostBox() {
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
-    await createPost.mutateAsync(content);
+    await createPost.mutateAsync({ content });
     setContent("");
   };
 
