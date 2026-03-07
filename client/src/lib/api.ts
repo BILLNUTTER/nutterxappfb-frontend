@@ -15,7 +15,10 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
     headers.set("Content-Type", "application/json");
   }
 
-  const res = await fetch(url, { ...options, headers });
+const API_BASE =
+  import.meta.env.VITE_API_URL || "https://nutterxapp-7099750cbf5f.herokuapp.com";
+
+const res = await fetch(`${API_BASE}${url}`, { ...options, headers });
   
   if (res.status === 401) {
     removeAuthToken();
