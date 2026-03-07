@@ -27,23 +27,18 @@ export default defineConfig(async () => {
         "@assets": path.resolve(__dirname, "attached_assets"),
       },
     },
+
     root: path.resolve(__dirname, "client"),
+
     build: {
       outDir: path.resolve(__dirname, "dist/public"),
       emptyOutDir: true,
     },
+
     server: {
       fs: {
         strict: true,
         deny: ["**/.*"],
-      },
-      proxy: {
-        // Forward API requests from frontend to backend
-        "/api": {
-          target: "https://nutterxapp-7099750cbf5f.herokuapp.com",
-          changeOrigin: true,
-          secure: false,
-        },
       },
     },
   };
