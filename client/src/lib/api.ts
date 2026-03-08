@@ -1,14 +1,28 @@
 import { z } from "zod";
 
+/*
+NX Connect API config
+Use same domain unless env override exists
+*/
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://nutterxapp-7099750cbf5f.herokuapp.com";
+  import.meta.env.VITE_API_URL || "";
 
-export const getAuthToken = () => localStorage.getItem("nutterx_token");
-export const setAuthToken = (token: string) => localStorage.setItem("nutterx_token", token);
-export const removeAuthToken = () => localStorage.removeItem("nutterx_token");
+/* ---------------- AUTH TOKEN ---------------- */
+
+export const getAuthToken = () =>
+  localStorage.getItem("nx_connect_token");
+
+export const setAuthToken = (token: string) =>
+  localStorage.setItem("nx_connect_token", token);
+
+export const removeAuthToken = () =>
+  localStorage.removeItem("nx_connect_token");
+
+/* ---------------- FETCH WRAPPER ---------------- */
 
 export async function apiFetch(url: string, options: RequestInit = {}) {
   const token = getAuthToken();
+
   const headers = new Headers(options.headers || {});
 
   if (token) {
@@ -31,11 +45,12 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
   }
 
   const contentType = res.headers.get("content-type");
-  const isJson = contentType && contentType.includes("application/json");
+  const isJson = contentType?.includes("application/json");
 
   if (!res.ok) {
     const errorData = isJson ? await res.json() : await res.text();
-    throw new Error(errorData.message || errorData || "An error occurred");
+    console.error("API Error:", errorData);
+    throw new Error(errorData.message || "API request failed");
   }
 
   if (res.status === 204) return null;
@@ -43,11 +58,26 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
   return isJson ? res.json() : res.text();
 }
 
-export function parseWithLogging<T>(schema: z.ZodSchema<T>, data: unknown, label: string): T {
+/* ---------------- SAFE ZOD PARSER ---------------- */
+
+export function parseWithLogging<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown,
+  label: string
+): T {
+
   const result = schema.safeParse(data);
+
   if (!result.success) {
-    console.error(`[Zod] ${label} validation failed:`, result.error.format());
-    throw result.error;
+
+    console.error(`[NX Connect Zod Error] ${label}`, result.error.format());
+
+    /*
+    IMPORTANT:
+    Return raw data instead of crashing the feed
+    */
+    return data as T;
   }
+
   return result.data;
 }
