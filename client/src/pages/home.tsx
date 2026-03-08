@@ -6,44 +6,63 @@ import { Heart, MessageCircle, Send } from "lucide-react";
 import type { Post } from "@shared/schema";
 
 export default function HomeFeed() {
-  const { data, isLoading } = usePosts();
+  const { data, isLoading, isError } = usePosts();
   const { user } = useAuth();
 
-  // ensure posts is always an array
-  const posts = Array.isArray(data) ? data : [];
+  const posts = Array.isArray(data)
+    ? data
+    : Array.isArray((data as any)?.posts)
+    ? (data as any).posts
+    : [];
 
   if (isLoading) {
     return (
-      <div className="text-center py-10 text-muted-foreground animate-pulse">
+      <div className="text-center py-10 text-muted-foreground">
         Loading NX Connect feed...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-10 text-red-500">
+        Failed to load feed
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-20">
-      
+
       <h2 className="text-2xl font-bold text-center">NX Connect</h2>
 
       <CreatePostBox />
 
-      {posts.length === 0 ? (
+      {posts.length === 0 && (
         <Card className="text-center py-16">
           <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
             <MessageCircle className="w-8 h-8 text-muted-foreground" />
           </div>
+
           <h3 className="text-xl font-bold mb-2">No posts yet</h3>
+
           <p className="text-muted-foreground">
             Be the first to share something on NX Connect!
           </p>
         </Card>
-      ) : (
-        posts
-          .filter((post: any) => post && post.id && post.content)
-          .map((post: Post) => (
-            <PostItem key={post.id} post={post} currentUserId={user?.id} />
-          ))
       )}
+
+      {posts.map((post: Post) => {
+        if (!post?.id || !post?.content) return null;
+
+        return (
+          <PostItem
+            key={post.id}
+            post={post}
+            currentUserId={user?.id}
+          />
+        );
+      })}
     </div>
   );
 }
