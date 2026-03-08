@@ -1,22 +1,18 @@
 import { z } from "zod";
 
-/*
-NX Connect API config
-Use same domain unless env override exists
-*/
 const API_BASE =
-  import.meta.env.VITE_API_URL || "";
+  import.meta.env.VITE_API_URL || "https://nutterxapp-7099750cbf5f.herokuapp.com";
 
 /* ---------------- AUTH TOKEN ---------------- */
 
 export const getAuthToken = () =>
-  localStorage.getItem("nx_connect_token");
+  localStorage.getItem("nutterx_token");
 
 export const setAuthToken = (token: string) =>
-  localStorage.setItem("nx_connect_token", token);
+  localStorage.setItem("nutterx_token", token);
 
 export const removeAuthToken = () =>
-  localStorage.removeItem("nx_connect_token");
+  localStorage.removeItem("nutterx_token");
 
 /* ---------------- FETCH WRAPPER ---------------- */
 
@@ -49,8 +45,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 
   if (!res.ok) {
     const errorData = isJson ? await res.json() : await res.text();
-    console.error("API Error:", errorData);
-    throw new Error(errorData.message || "API request failed");
+    throw new Error(errorData?.message || "API request failed");
   }
 
   if (res.status === 204) return null;
@@ -58,25 +53,18 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
   return isJson ? res.json() : res.text();
 }
 
-/* ---------------- SAFE ZOD PARSER ---------------- */
+/* ---------------- ZOD PARSER ---------------- */
 
 export function parseWithLogging<T>(
   schema: z.ZodSchema<T>,
   data: unknown,
   label: string
 ): T {
-
   const result = schema.safeParse(data);
 
   if (!result.success) {
-
-    console.error(`[NX Connect Zod Error] ${label}`, result.error.format());
-
-    /*
-    IMPORTANT:
-    Return raw data instead of crashing the feed
-    */
-    return data as T;
+    console.error(`[Zod] ${label} validation failed`, result.error.format());
+    throw new Error(`Invalid API response for ${label}`);
   }
 
   return result.data;
