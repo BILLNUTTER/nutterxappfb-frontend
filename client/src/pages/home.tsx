@@ -6,28 +6,43 @@ import { Heart, MessageCircle, Send } from "lucide-react";
 import type { Post } from "@shared/schema";
 
 export default function HomeFeed() {
-  const { data: posts, isLoading } = usePosts();
+  const { data, isLoading } = usePosts();
   const { user } = useAuth();
-  
-  if (isLoading) return <div className="text-center py-10 text-muted-foreground animate-pulse">Loading feed...</div>;
+
+  // ensure posts is always an array
+  const posts = Array.isArray(data) ? data : [];
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-10 text-muted-foreground animate-pulse">
+        Loading NX Connect feed...
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-20">
+      
+      <h2 className="text-2xl font-bold text-center">NX Connect</h2>
+
       <CreatePostBox />
-      {!posts || posts.length === 0 ? (
+
+      {posts.length === 0 ? (
         <Card className="text-center py-16">
           <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
             <MessageCircle className="w-8 h-8 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-bold mb-2">No posts yet</h3>
-          <p className="text-muted-foreground">Be the first to share something with your friends!</p>
+          <p className="text-muted-foreground">
+            Be the first to share something on NX Connect!
+          </p>
         </Card>
       ) : (
         posts
-  ?.filter(post => post?.id)
-  .map(post => (
-    <PostItem key={post.id} post={post} currentUserId={user?.id} />
-  ))
+          .filter((post: any) => post && post.id && post.content)
+          .map((post: Post) => (
+            <PostItem key={post.id} post={post} currentUserId={user?.id} />
+          ))
       )}
     </div>
   );
@@ -40,8 +55,13 @@ function CreatePostBox() {
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
-    await createPost.mutateAsync({ content });
-    setContent("");
+
+    try {
+      await createPost.mutateAsync({ content });
+      setContent("");
+    } catch (err) {
+      console.error("Post failed:", err);
+    }
   };
 
   return (
@@ -51,12 +71,16 @@ function CreatePostBox() {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="What's on your mind?"
+          placeholder="Share something on NX Connect..."
           className="flex-1 bg-transparent resize-none outline-none text-lg placeholder:text-muted-foreground min-h-[80px]"
         />
       </div>
+
       <div className="flex justify-end mt-4 pt-4 border-t border-border/50">
-        <Button onClick={handleSubmit} disabled={!content.trim() || createPost.isPending}>
+        <Button
+          onClick={handleSubmit}
+          disabled={!content.trim() || createPost.isPending}
+        >
           {createPost.isPending ? "Posting..." : "Share Post"}
         </Button>
       </div>
@@ -67,31 +91,52 @@ function CreatePostBox() {
 function PostItem({ post, currentUserId }: { post: Post; currentUserId?: string }) {
   const [showComments, setShowComments] = useState(false);
   const likePost = useLikePost();
-  const hasLiked = (post.likes || []).includes(currentUserId || "");
+
+  const likes = Array.isArray(post.likes) ? post.likes : [];
+
+  const hasLiked =
+    currentUserId && likes.length > 0
+      ? likes.includes(currentUserId)
+      : false;
 
   return (
     <Card className="transition-all hover:shadow-xl hover:border-border">
+      
       <div className="flex items-center gap-3 mb-4">
-        <Avatar url={post.author?.profilePicture} name={post.author?.name || "U"} />
+        <Avatar
+          url={post.author?.profilePicture}
+          name={post.author?.name || "User"}
+        />
+
         <div>
-          <div className="font-bold text-foreground">{post.author?.name}</div>
+          <div className="font-bold text-foreground">
+            {post.author?.name || "Unknown User"}
+          </div>
+
           <div className="text-xs text-muted-foreground flex gap-1">
-            @{post.author?.username} • <TimeAgo date={post.createdAt!} />
+            @{post.author?.username || "user"} •{" "}
+            {post.createdAt ? <TimeAgo date={post.createdAt} /> : "now"}
           </div>
         </div>
       </div>
-      
+
       <p className="text-lg whitespace-pre-wrap mb-6">{post.content}</p>
-      
+
       <div className="flex items-center gap-4 pt-4 border-t border-border/50">
-        <button 
+        
+        <button
           onClick={() => likePost.mutate(post.id)}
-          className={`flex items-center gap-2 text-sm font-medium transition-colors ${hasLiked ? 'text-pink-500' : 'text-muted-foreground hover:text-pink-500'}`}
+          className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            hasLiked
+              ? "text-pink-500"
+              : "text-muted-foreground hover:text-pink-500"
+          }`}
         >
-          <Heart className={`w-5 h-5 ${hasLiked ? 'fill-current' : ''}`} />
-          {post.likes.length}
+          <Heart className={`w-5 h-5 ${hasLiked ? "fill-current" : ""}`} />
+          {likes.length}
         </button>
-        <button 
+
+        <button
           onClick={() => setShowComments(!showComments)}
           className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
         >
@@ -106,38 +151,69 @@ function PostItem({ post, currentUserId }: { post: Post; currentUserId?: string 
 }
 
 function CommentSection({ postId }: { postId: string }) {
-  const { data: comments, isLoading } = useComments(postId);
+  const { data, isLoading } = useComments(postId);
   const createComment = useCreateComment();
   const [content, setContent] = useState("");
   const { user } = useAuth();
 
+  const comments = Array.isArray(data) ? data : [];
+
   const handleSend = async () => {
     if (!content.trim()) return;
-    await createComment.mutateAsync({ postId, content });
-    setContent("");
+
+    try {
+      await createComment.mutateAsync({ postId, content });
+      setContent("");
+    } catch (err) {
+      console.error("Comment failed:", err);
+    }
   };
 
   return (
     <div className="mt-6 pt-6 border-t border-border/50 space-y-4">
-      {isLoading ? <div className="text-sm text-muted-foreground">Loading comments...</div> : 
-        comments?.map(c => (
-          <div key={c.id} className="flex gap-3 bg-secondary/30 p-3 rounded-2xl">
-            <Avatar url={c.author?.profilePicture} name={c.author?.name || "U"} size="sm" />
+      
+      {isLoading ? (
+        <div className="text-sm text-muted-foreground">
+          Loading comments...
+        </div>
+      ) : (
+        comments.map((c: any) => (
+          <div
+            key={c.id}
+            className="flex gap-3 bg-secondary/30 p-3 rounded-2xl"
+          >
+            <Avatar
+              url={c.author?.profilePicture}
+              name={c.author?.name || "U"}
+              size="sm"
+            />
+
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-sm">{c.author?.name}</span>
-                <TimeAgo date={c.createdAt!} />
+                <span className="font-bold text-sm">
+                  {c.author?.name || "User"}
+                </span>
+
+                {c.createdAt && <TimeAgo date={c.createdAt} />}
               </div>
-              <p className="text-sm text-foreground mt-0.5">{c.content}</p>
+
+              <p className="text-sm text-foreground mt-0.5">
+                {c.content}
+              </p>
             </div>
           </div>
         ))
-      }
-      
+      )}
+
       <div className="flex items-center gap-3 pt-2">
-        <Avatar url={user?.profilePicture} name={user?.name || "U"} size="sm" />
+        <Avatar
+          url={user?.profilePicture}
+          name={user?.name || "U"}
+          size="sm"
+        />
+
         <div className="flex-1 flex items-center bg-secondary rounded-full px-4 py-2">
-          <input 
+          <input
             type="text"
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -145,7 +221,12 @@ function CommentSection({ postId }: { postId: string }) {
             className="flex-1 bg-transparent border-none outline-none text-sm"
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
           />
-          <button onClick={handleSend} disabled={!content.trim() || createComment.isPending} className="text-primary disabled:opacity-50">
+
+          <button
+            onClick={handleSend}
+            disabled={!content.trim() || createComment.isPending}
+            className="text-primary disabled:opacity-50"
+          >
             <Send className="w-4 h-4" />
           </button>
         </div>
